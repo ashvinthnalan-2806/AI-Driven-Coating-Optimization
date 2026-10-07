@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Driven Coating Formulation & Property Optimization</title>
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-icon">🧪</div>
+                <div>
+                    <h1 class="brand-title">AI-Driven Coating Formulation & Property Optimization</h1>
+                    <p class="brand-subtitle">Machine Learning-Based Coating Property Prediction &amp; Inverse Design</p>
+                </div>
+            </div>
+            <div class="header-status">
+                <span id="backendStatusBadge" class="status-badge status-loading">
+                    <span class="status-dot"></span>
+                    <span id="backendStatusText">Connecting to ML Server...</span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Demo Banner (Conditional) -->
+    <div id="demoBanner" class="demo-banner">
+        <span class="demo-icon">ℹ️</span>
+        <span id="demoBannerText">DEMO MODEL — Powered by synthetic demonstration dataset. Replace with experimentally trained model for industrial pilot.</span>
+    </div>
+
+    <!-- Main Container -->
+    <main class="main-container">
+
+        <!-- Intro Description Card -->
+        <section class="intro-card">
+            <p>
+                Enter the coating formulation and processing parameters below to predict the expected coating properties using your trained multi-output machine learning model.
+            </p>
+        </section>
+
+        <!-- Two-Column Grid: Inputs & Results -->
+        <div class="dashboard-grid">
+
+            <!-- LEFT COLUMN: Coating Formulation Inputs Panel -->
+            <section class="panel input-panel">
+                <div class="panel-header">
+                    <h2>Coating Formulation Inputs</h2>
+                    <span class="badge">7 Parameters</span>
+                </div>
+
+                <form id="predictionForm" novalidate>
+
+                    <!-- Formulation Components Group -->
+                    <div class="form-group-section">
+                        <div class="section-title">
+                            <span>Formulation Components</span>
+                            <span class="section-note">Must sum to ~100 wt%</span>
+                        </div>
+
+                        <div class="input-grid">
+                            <!-- Resin -->
+                            <div class="input-field">
+                                <label for="resinContent">
+                                    Resin Content
+                                    <span class="unit">(wt%)</span>
+                                </label>
+                                <input type="number" id="resinContent" name="Resin_Content" step="0.1" min="0" max="100" value="48.0" required>
+                                <span class="field-hint">Binder matrix (typical: 30–60%)</span>
+                                <span class="error-msg" id="resinError"></span>
+                            </div>
+
+                            <!-- Pigment -->
+                            <div class="input-field">
+                                <label for="pigmentContent">
+                                    Pigment Content
+                                    <span class="unit">(wt%)</span>
+                                </label>
+                                <input type="number" id="pigmentContent" name="Pigment_Content" step="0.1" min="0" max="100" value="24.0" required>
+                                <span class="field-hint">Color/hiding (typical: 10–40%)</span>
+                                <span class="error-msg" id="pigmentError"></span>
+                            </div>
+
+                            <!-- Solvent -->
+                            <div class="input-field">
+                                <label for="solventContent">
+                                    Solvent Content
+                                    <span class="unit">(wt%)</span>
+                                </label>
+                                <input type="number" id="solventContent" name="Solvent_Content" step="0.1" min="0" max="100" value="20.0" required>
+                                <span class="field-hint">Carrier/flow (typical: 10–30%)</span>
+                                <span class="error-msg" id="solventError"></span>
+                            </div>
+
+                            <!-- Additive -->
+                            <div class="input-field">
+                                <label for="additiveContent">
+                                    Additive Content
+                                    <span class="unit">(wt%)</span>
+                                </label>
+                                <input type="number" id="additiveContent" name="Additive_Content" step="0.1" min="0" max="50" value="2.5" required>
+                                <span class="field-hint">Defoamer/flow aids (0–10%)</span>
+                                <span class="error-msg" id="additiveError"></span>
+                            </div>
+
+                            <!-- Curing Agent -->
+                            <div class="input-field full-width">
+                                <label for="curingAgentContent">
+                                    Curing Agent Content
+                                    <span class="unit">(wt%)</span>
+                                </label>
+                                <input type="number" id="curingAgentContent" name="Curing_Agent_Content" step="0.1" min="0" max="50" value="5.5" required>
+                                <span class="field-hint">Crosslinker density control (typical: 1–10%)</span>
+                                <span class="error-msg" id="curingAgentError"></span>
+                            </div>
+                        </div>
+
+                        <!-- Live Total Composition Indicator -->
+                        <div class="composition-bar-container">
+                            <div class="composition-header">
+                                <span class="comp-label">Total Composition:</span>
+                                <span id="compSumDisplay" class="comp-value">100.0%</span>
+                                <span id="compStatusBadge" class="comp-badge valid">✓ Valid</span>
+                            </div>
+                            <div class="composition-track">
+                                <div id="compProgress" class="composition-fill" style="width: 100%;"></div>
+                            </div>
+                            <div class="composition-options">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="enforceStrict100">
+                                    <span class="checkmark"></span>
+                                    Enforce strict 100.0% total formulation constraint
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Baking Schedule Group -->
+                    <div class="form-group-section">
+                        <div class="section-title">
+                            <span>Baking &amp; Curing Process Parameters</span>
+                        </div>
+
+                        <div class="input-grid">
+                            <!-- Temperature -->
+                            <div class="input-field">
+                                <label for="curingTemp">
+                                    Curing Temperature
+                                    <span class="unit">(°C)</span>
+                                </label>
+                                <input type="number" id="curingTemp" name="Curing_Temperature" step="1.0" min="0" max="300" value="105.0" required>
+                                <span class="field-hint">Baking oven temp (50–150 °C)</span>
+                                <span class="error-msg" id="tempError"></span>
+                            </div>
+
+                            <!-- Time -->
+                            <div class="input-field">
+                                <label for="curingTime">
+                                    Curing Time
+                                    <span class="unit">(minutes)</span>
+                                </label>
+                                <input type="number" id="curingTime" name="Curing_Time" step="1.0" min="0" max="600" value="45.0" required>
+                                <span class="field-hint">Oven dwell time (10–120 min)</span>
+                                <span class="error-msg" id="timeError"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Validation Banner -->
+                    <div id="formAlert" class="alert-box alert-error" style="display: none;">
+                        <span class="alert-icon">⚠️</span>
+                        <span id="formAlertMsg"></span>
+                    </div>
+
+                    <!-- Form Action Buttons -->
+                    <div class="form-actions">
+                        <button type="submit" id="predictBtn" class="btn btn-primary">
+                            <span class="btn-spinner" id="btnSpinner" style="display: none;"></span>
+                            <span id="btnText">PREDICT COATING PROPERTIES</span>
+                        </button>
+                        <button type="button" id="resetBtn" class="btn btn-secondary">
+                            RESET
+                        </button>
+                    </div>
+
+                </form>
+            </section>
+
+            <!-- RIGHT COLUMN: Result Dashboard -->
+            <section class="panel result-panel">
+                <div class="panel-header">
+                    <h2>AI Predicted Coating Properties</h2>
+                    <span id="predictionStatusBadge" class="badge badge-neutral">Awaiting Input</span>
+                </div>
+
+                <!-- Empty State Placeholder -->
+                <div id="emptyState" class="empty-state">
+                    <div class="empty-icon">📊</div>
+                    <h3>Ready for Prediction</h3>
+                    <p>Configure the recipe parameters on the left and click <strong>PREDICT COATING PROPERTIES</strong> to generate predictions using the trained machine learning model.</p>
+                </div>
+
+                <!-- Loading State View -->
+                <div id="loadingState" class="loading-state" style="display: none;">
+                    <div class="spinner-large"></div>
+                    <h3>Running AI Prediction Pipeline...</h3>
+                    <p>Evaluating multi-output regression across chemical and thermal kinetics response surfaces.</p>
+                </div>
+
+                <!-- Active Results Content (Hidden until predict) -->
+                <div id="resultsContent" style="display: none;">
+
+                    <!-- 5 Metric Cards -->
+                    <div class="cards-grid">
+                        <!-- Hardness -->
+                        <div class="result-card">
+                            <div class="card-header">
+                                <span class="card-title">HARDNESS</span>
+                                <span class="card-icon">💎</span>
+                            </div>
+                            <div class="card-value" id="valHardness">--</div>
+                            <div class="card-meta">
+                                <span class="card-unit">Index (0–100)</span>
+                                <span class="card-desc">Scratch / Koenig resistance</span>
+                            </div>
+                        </div>
+
+                        <!-- Adhesion -->
+                        <div class="result-card">
+                            <div class="card-header">
+                                <span class="card-title">ADHESION</span>
+                                <span class="card-icon">🧲</span>
+                            </div>
+                            <div class="card-value" id="valAdhesion">--</div>
+                            <div class="card-meta">
+                                <span class="card-unit">Index (0–100)</span>
+                                <span class="card-desc">Cross-hatch bond strength</span>
+                            </div>
+                        </div>
+
+                        <!-- Flexibility -->
+                        <div class="result-card">
+                            <div class="card-header">
+                                <span class="card-title">FLEXIBILITY</span>
+                                <span class="card-icon">🔄</span>
+                            </div>
+                            <div class="card-value" id="valFlexibility">--</div>
+                            <div class="card-meta">
+                                <span class="card-unit">Index (0–100)</span>
+                                <span class="card-desc">Mandrel bend / ductility</span>
+                            </div>
+                        </div>
+
+                        <!-- Gloss -->
+                        <div class="result-card">
+                            <div class="card-header">
+                                <span class="card-title">GLOSS</span>
+                                <span class="card-icon">✨</span>
+                            </div>
+                            <div class="card-value" id="valGloss">--</div>
+                            <div class="card-meta">
+                                <span class="card-unit">GU @ 60°</span>
+                                <span class="card-desc">Specular reflectance</span>
+                            </div>
+                        </div>
+
+                        <!-- Drying Time -->
+                        <div class="result-card highlight">
+                            <div class="card-header">
+                                <span class="card-title">DRYING TIME</span>
+                                <span class="card-icon">⏱️</span>
+                            </div>
+                            <div class="card-value" id="valDryingTime">--</div>
+                            <div class="card-meta">
+                                <span class="card-unit">minutes</span>
+                                <span class="card-desc">Tack-free curing time</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Result Chart -->
+                    <div class="chart-section">
+                        <div class="chart-header">
+                            <h3>Property Magnitude Profile</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="predictionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Input Formulation Summary -->
+                    <div class="summary-section">
+                        <h3>Input Formulation Summary</h3>
+                        <div class="summary-table-wrapper">
+                            <table class="summary-table">
+                                <thead>
+                                    <tr>
+                                        <th>Parameter</th>
+                                        <th>Configured Value</th>
+                                        <th>Standard Unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="summaryTableBody">
+                                    <!-- Dynamic rows inserted by script.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Download Results Button -->
+                    <div class="download-section">
+                        <button type="button" id="downloadBtn" class="btn btn-outline">
+                            📥 DOWNLOAD RESULTS (CSV)
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+
+        <!-- MODEL INFORMATION PANEL -->
+        <section class="panel model-info-panel">
+            <div class="panel-header">
+                <h2>Model Information &amp; Architecture</h2>
+                <span class="badge badge-info">Production Ready</span>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Active Model:</span>
+                    <span class="info-val" id="modelArchText">Multi-Output Gradient Boosting Regressor</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Task:</span>
+                    <span class="info-val" id="modelTaskText">Multi-output Continuous Regression</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Input Dimensions:</span>
+                    <span class="info-val">7 Process &amp; Compositional Features</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Output Dimensions:</span>
+                    <span class="info-val">5 Physical &amp; Optical Properties</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Overall Test R²:</span>
+                    <span class="info-val" id="modelR2Text">0.9501</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Overall Test MAE:</span>
+                    <span class="info-val" id="modelMaeText">1.513</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- PREDICTION HISTORY SECTION -->
+        <section class="panel history-panel">
+            <div class="panel-header">
+                <h2>Prediction History (Local Session)</h2>
+                <button type="button" id="clearHistoryBtn" class="btn btn-text">
+                    Clear History
+                </button>
+            </div>
+            <div class="history-table-wrapper">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Formulation (R/P/S/A/C)</th>
+                            <th>Bake (°C / min)</th>
+                            <th>Hardness</th>
+                            <th>Adhesion</th>
+                            <th>Flexibility</th>
+                            <th>Gloss</th>
+                            <th>Drying Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td colspan="8" class="text-center empty-history">No predictions recorded in this browser session.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- FOOTER & PROJECT DISCLAIMER -->
+        <footer class="app-footer">
+            <div class="disclaimer-box">
+                <strong>ENGINEERING PROJECT DISCLAIMER:</strong>
+                AI predictions are model-based estimates derived from empirical and surrogate response surfaces. Formulations must be experimentally validated in physical laboratory bench trials prior to industrial pilot testing.
+            </div>
+            <p class="footer-meta">
+                College Engineering Project | AI-Driven Coating Formulation &amp; Property Optimization &copy; 2026
+            </p>
+        </footer>
+
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

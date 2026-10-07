@@ -1,0 +1,27 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments (Causes 'exceeds MB' error if tracked!)
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local runtime & test artifacts
+*.log
+*.tmp
+.pytest_cache/

@@ -1,0 +1,69 @@
+{
+  "model_name": "Gradient Boosting Regressor (Multi-Output)",
+  "task": "Multi-output Regression",
+  "is_demo": true,
+  "demo_disclaimer": "DEMO MODEL \u2014 Replace with experimentally trained model.",
+  "input_features": [
+    "Resin_Content",
+    "Pigment_Content",
+    "Solvent_Content",
+    "Additive_Content",
+    "Curing_Agent_Content",
+    "Curing_Temperature",
+    "Curing_Time"
+  ],
+  "target_properties": [
+    "Hardness",
+    "Adhesion",
+    "Flexibility",
+    "Gloss",
+    "Drying_Time"
+  ],
+  "target_units": {
+    "Hardness": "Index (0-100)",
+    "Adhesion": "Index (0-100)",
+    "Flexibility": "Index (0-100)",
+    "Gloss": "GU @ 60\u00b0",
+    "Drying_Time": "minutes"
+  },
+  "training_samples": 400,
+  "test_samples": 100,
+  "overall_metrics": {
+    "Mean_R2": 0.9501,
+    "Mean_MAE": 1.513,
+    "Mean_RMSE": 1.93
+  },
+  "per_target_metrics": {
+    "Hardness": {
+      "R2": 0.963,
+      "MAE": 1.717,
+      "RMSE": 2.216,
+      "Unit": "Index (0-100)"
+    },
+    "Adhesion": {
+      "R2": 0.8678,
+      "MAE": 1.234,
+      "RMSE": 1.621,
+      "Unit": "Index (0-100)"
+    },
+    "Flexibility": {
+      "R2": 0.97,
+      "MAE": 1.626,
+      "RMSE": 2.032,
+      "Unit": "Index (0-100)"
+    },
+    "Gloss": {
+      "R2": 0.9737,
+      "MAE": 1.159,
+      "RMSE": 1.495,
+      "Unit": "GU @ 60\u00b0"
+    },
+    "Drying_Time": {
+      "R2": 0.9759,
+      "MAE": 1.83,
+      "RMSE": 2.286,
+      "Unit": "minutes"
+    }
+  },
+  "created_at": "2026-10-04T12:40:27.804454"
+}
